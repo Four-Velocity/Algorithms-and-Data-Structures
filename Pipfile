@@ -1,0 +1,17 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+flake8 = "*"
+flake8-docstrings = "*"
+mypy = "*"
+coverage = "*"
+black = "==19.10b0"
+
+[packages]
+jupyter = "*"
+
+[requires]
+python_version = "3.8"
