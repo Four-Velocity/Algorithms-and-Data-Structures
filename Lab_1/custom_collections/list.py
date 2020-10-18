@@ -1,7 +1,7 @@
 """Містить реалізацию цілочисельного списку."""
 
 from __future__ import annotations
-from typing import Union
+from typing import Union, Iterable, Optional
 
 
 class CustomList:
@@ -13,13 +13,13 @@ class CustomList:
 
         Під час ініціалізації виконується перевірка типів елементів списку
         для впевненості що він містить лише цілі числа.
-        :param elements: Цілочисленні лементи списку
-        :param maxlen: Необов'язковий параметр.
+        :param elements: ціло численні елементи списку.
+        :param maxlen: необов'язковий параметр.
         Дозволяє встановити максимальну довжину масиву.
         Якщо дорівнює 0 то кількість елементів необмежена.
-        :raises TypeError: Якщо при ініціалізації у списку є не цілочисельний елемент.
-        :raises ValueError: Якщо maxlen відємна
-        :raises IndexError: Якщо кількість elements перевищує maxlen
+        :raises TypeError: якщо при ініціалізації у списку є не цілочисельний елемент.
+        :raises ValueError: якщо maxlen від'ємна.
+        :raises OverflowError: якщо кількість elements перевищує maxlen.
         """
         if maxlen < 0:
             raise ValueError('maxlen must be a positive number ("not {}")'.format(maxlen))
@@ -29,7 +29,7 @@ class CustomList:
                     'list can contain only int (not "{}")'.format(type(element).__name__)
                 )
         if 0 < maxlen < len(elements):
-            raise IndexError(
+            raise OverflowError(
                 "too many elements ({}) for list with maxlen {}".format(len(elements), maxlen)
             )
         self.elements = elements
@@ -41,8 +41,9 @@ class CustomList:
         Максимальна довжина списку.
 
         Приватний атрибут maxlen обгорнутий у property для того,
-        щоб обмежити його модифікацію після того як екземляр класу створений.
-        :return: Максимальна довжина списку
+        щоб обмежити його модифікацію після того як екземпляр класу створений.
+
+        :return: максимальна довжина списку.
         """
         return self.__maxlen
 
@@ -52,8 +53,9 @@ class CustomList:
         Setter атрибуту maxlen.
 
         Забороняє змінювати максимальну довжину списку після створення.
+
         :param value: ...
-        :raise AttributeError: При спробі змінити maxlen
+        :raise AttributeError: при спробі змінити maxlen.
         """
         raise AttributeError("max length is immutable, you can't change it")
 
@@ -63,13 +65,14 @@ class CustomList:
         Deleter атрибуту maxlen.
 
         Забороняє видаляти максимальну довжину списку після створення.
-        :raise AttributeError: При спробі видалити maxlen
+
+        :raise AttributeError: при спробі видалити maxlen.
         """
         raise AttributeError("max length is immutable, you can't delete it")
 
     def is_full(self) -> bool:
         """
-        Перевіряє заповніність списку.
+        Перевіряє заповненість списку.
 
         :return: True: якщо список повний, або
                  False: якщо у списку ще є місце.
@@ -81,18 +84,118 @@ class CustomList:
 
     def is_empty(self) -> bool:
         """
-        Перевіряє заповніність списку.
+        Перевіряє заповненість списку.
 
         :return: True: якщо список пустий, або
                  False: якщо у списку є елементи.
         """
         return len(self) == 0
 
+    def append(self, x: int):
+        """
+        Додає елемент х у кінець списку.
+
+        :param x: число яке потрібно додати.
+        :raises TypeError: якщо x не цілочисельний елемент.
+        :raises OverflowError: якщо список повний і місця для нового елементу нема.
+        """
+        if self.is_full():
+            raise OverflowError("list is full")
+        if not isinstance(x, int):
+            raise TypeError('list can contain only int (not "{}")'.format(type(x).__name__))
+        self.elements += x
+
+    def extend(self, iterable: Iterable[int]):
+        """
+        Додає елементи з iterable у кінець списку.
+
+        :param iterable: колекція елементів які потрібно додати.
+        :raises TypeError: якщо один з елементів не цілочисельний.
+        :raises OverflowError: якщо список повний і місця для нового елементу нема.
+        """
+        for element in iterable:
+            if self.is_full():
+                raise OverflowError("list is full")
+            if not isinstance(element, int):
+                raise TypeError(
+                    'list can contain only int (not "{}")'.format(type(element).__name__)
+                )
+            self.elements += element
+
+    def pop(self, index: int = -1) -> int:
+        """
+        Видаляє елемент зі списку по індексу та повертає його значення.
+
+        Якщо індекс не вказано видаляє останній елемент.
+
+        :param index: індекс елементу який видаляється зі списку.
+        :return: значення видаленого елемента.
+        :raises IndexError: якщо список пустий.
+        """
+        if self.is_empty():
+            raise IndexError("CustomList index out of range")
+        if index == -1 or index == self.__len__() - 1:
+            element = self.__getitem__(-1)
+            self.elements = self.elements[:-1]
+        elif index == 0:
+            element = self.__getitem__(0)
+            self.elements = self.elements[1:]
+        else:
+            element = self.__getitem__(index)
+            self.elements = self.elements[:index] + self.elements[index + 1 :]
+        return element
+
+    def clear(self):
+        """Очищує список."""
+        self.elements = ()
+
+    def count(self, x: int) -> int:
+        """
+        Повертає кількість входжень елемента у списку.
+
+        :param x: елемент, кількість якого необхідно підрахувати.
+        :return: кількість входжень елемента.
+        """
+        counter = 0
+        for element in self.elements:
+            if element == x:
+                counter += 1
+        return counter
+
+    def index(self, x: int, start: int = 0, stop: int = -1) -> Optional[int]:
+        """
+        Повертає індекс першого входження елементу.
+
+        Повертає None, якщо елемент у списку відсутній.
+        Можна задати значення start або stop для пошуку у зрізі зі списку.
+        :param x: значення індекс якого потрібно знайти.
+        :param start: індекс початку пошуку.
+        :param stop: індекс завершення пошуку.
+        :return: індекс першого входження елементу, або None, якщо елементу нема у списку.
+        """
+        for index, element in enumerate(self.elements[start:stop], start):
+            if element == x:
+                return index
+        return None
+
+    def insert(self, element: int, index: int):
+        """
+        Вставляє елемент на вказану позицію.
+
+        :param element: значення елементу, який необхідно вставити.
+        :param index: позиція на яку потрібно вставити елемент.
+        """
+        self.elements = self.elements[:index] + (element,) + self.elements[index:]
+
+    def reverse(self):
+        """Відзеркалює список."""
+        self.elements = self.elements[::-1]
+
     def __str__(self) -> str:
         """
         Магічний метод. Дозволяє конвертувати список до рядка.
 
-        :return: Список представлений як рядок.
+        :return: список представлений як рядок.
 
         >>> new_cl = CustomList(1, 2, 3)
         >>> str(new_cl)
@@ -112,7 +215,7 @@ class CustomList:
         """
         Магічний метод. Дозволяє отримувати рядкове прадставлення списку.
 
-        :return: Рядкова репрезентація екземпляру.
+        :return: рядкова репрезентація екземпляру.
 
         >>> new_cl = CustomList(1, 2, 3)
         >>> repr(new_cl)
@@ -132,8 +235,8 @@ class CustomList:
         """
         Магічний метод. Дозволяє використовувати "+" між екземплярами класу для їх конкатенації.
 
-        :param other: Еказемпляр CustomList який потрібно додати до поточного
-        :return: Новий екземпляр класу що складається з поточного та класу що додається
+        :param other: екземпляр CustomList який потрібно додати до поточного.
+        :return: Новий екземпляр класу що складається з поточного та класу що додається.
         """
         if not isinstance(other, self.__class__):
             raise TypeError(
@@ -152,7 +255,7 @@ class CustomList:
         Магічний метод. Дозволяє отримувати довжину списку.
 
         Разом із __getitem__ автоматично реалізує ітератори.
-        :return: Довжина списку.
+        :return: довжина списку.
         """
         return len(self.elements)
 
@@ -162,10 +265,10 @@ class CustomList:
 
         Разом із __len__ реалізує індексацію, зрізи, ітерацію
         та інші операції пов'язані з нею.
-        :param item: Індекс або індекси елементів списку.
+        :param item: індекс або індекси елементів списку.
         :return: Елемент або декілька елементів списку.
         :raises IndexError: якщо індекс не входить у список.
-        :raises TypeError: якщо індекс не відповідає необхідному типу данних.
+        :raises TypeError: якщо індекс не відповідає необхідному типу даних.
         """
         if isinstance(item, int):
             try:
@@ -178,6 +281,5 @@ class CustomList:
                         type(item).__name__
                     )
                 )
-
         else:
             return CustomList(*self.elements[item], maxlen=self.maxlen)
