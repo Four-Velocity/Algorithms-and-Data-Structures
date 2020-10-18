@@ -6,6 +6,7 @@ exclude = '''
 /(
     \.git
     \.idea
+    \tests
   | \.hg
   | \.mypy_cache
   | \.tox
@@ -14,6 +15,5 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | tests
 )/
 '''
