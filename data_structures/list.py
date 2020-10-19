@@ -1,10 +1,14 @@
-"""Містить реалізацию цілочисельного списку."""
+"""Містить реалізацію цілочисельного списку та його конструктор."""
 
 from __future__ import annotations
-from typing import Union, Iterable, Optional
+from typing import Union, Sequence, Optional, Iterable
+from .utils import MaxLenMixin
+from .utils.list_exceptions import CustomListIsEmpty, CustomListIsFull
+
+__all__ = ["CustomList", "custom_list"]
 
 
-class CustomList:
+class CustomList(MaxLenMixin):
     """Реалізація списку. Може містити лише int. Довжина може бути обмеженою."""
 
     def __init__(self, *elements: int, maxlen: int = 0):
@@ -15,60 +19,17 @@ class CustomList:
         для впевненості що він містить лише цілі числа.
         :param elements: ціло численні елементи списку.
         :param maxlen: необов'язковий параметр.
-        Дозволяє встановити максимальну довжину масиву.
-        Якщо дорівнює 0 то кількість елементів необмежена.
+            Дозволяє встановити максимальну довжину списку.
+            Якщо дорівнює 0 то кількість елементів необмежена.
         :raises TypeError: якщо при ініціалізації у списку є не цілочисельний елемент.
-        :raises ValueError: якщо maxlen від'ємна.
-        :raises OverflowError: якщо кількість elements перевищує maxlen.
         """
-        if maxlen < 0:
-            raise ValueError('maxlen must be a positive number ("not {}")'.format(maxlen))
         for element in elements:
             if not isinstance(element, int):
                 raise TypeError(
                     'list can contain only int (not "{}")'.format(type(element).__name__)
                 )
-        if 0 < maxlen < len(elements):
-            raise OverflowError(
-                "too many elements ({}) for list with maxlen {}".format(len(elements), maxlen)
-            )
         self.elements = elements
-        self.__maxlen = maxlen
-
-    @property
-    def maxlen(self) -> int:
-        """
-        Максимальна довжина списку.
-
-        Приватний атрибут maxlen обгорнутий у property для того,
-        щоб обмежити його модифікацію після того як екземпляр класу створений.
-
-        :return: максимальна довжина списку.
-        """
-        return self.__maxlen
-
-    @maxlen.setter
-    def maxlen(self, value: int):
-        """
-        Setter атрибуту maxlen.
-
-        Забороняє змінювати максимальну довжину списку після створення.
-
-        :param value: ...
-        :raise AttributeError: при спробі змінити maxlen.
-        """
-        raise AttributeError("max length is immutable, you can't change it")
-
-    @maxlen.deleter
-    def maxlen(self):
-        """
-        Deleter атрибуту maxlen.
-
-        Забороняє видаляти максимальну довжину списку після створення.
-
-        :raise AttributeError: при спробі видалити maxlen.
-        """
-        raise AttributeError("max length is immutable, you can't delete it")
+        super(CustomList, self).__init__(*elements, maxlen=maxlen)
 
     def is_full(self) -> bool:
         """
@@ -97,13 +58,13 @@ class CustomList:
 
         :param x: число яке потрібно додати.
         :raises TypeError: якщо x не цілочисельний елемент.
-        :raises OverflowError: якщо список повний і місця для нового елементу нема.
+        :raises CustomListIsFull: якщо список повний і місця для нового елементу нема.
         """
         if self.is_full():
-            raise OverflowError("list is full")
+            raise CustomListIsFull("list is full")
         if not isinstance(x, int):
             raise TypeError('list can contain only int (not "{}")'.format(type(x).__name__))
-        self.elements += x
+        self.elements += (x,)
 
     def extend(self, iterable: Iterable[int]):
         """
@@ -111,16 +72,16 @@ class CustomList:
 
         :param iterable: колекція елементів які потрібно додати.
         :raises TypeError: якщо один з елементів не цілочисельний.
-        :raises OverflowError: якщо список повний і місця для нового елементу нема.
+        :raises CustomListIsFull: якщо список повний і місця для нового елементу нема.
         """
         for element in iterable:
             if self.is_full():
-                raise OverflowError("list is full")
+                raise CustomListIsFull("list is full")
             if not isinstance(element, int):
                 raise TypeError(
                     'list can contain only int (not "{}")'.format(type(element).__name__)
                 )
-            self.elements += element
+            self.elements += (element,)
 
     def pop(self, index: int = -1) -> int:
         """
@@ -130,18 +91,21 @@ class CustomList:
 
         :param index: індекс елементу який видаляється зі списку.
         :return: значення видаленого елемента.
-        :raises IndexError: якщо список пустий.
+        :raises CustomListIsEmpty: якщо список пустий.
         """
         if self.is_empty():
-            raise IndexError("CustomList index out of range")
+            raise CustomListIsEmpty("list is empty")
         if index == -1 or index == self.__len__() - 1:
-            element = self.__getitem__(-1)
+            element = self.elements[-1]
             self.elements = self.elements[:-1]
         elif index == 0:
-            element = self.__getitem__(0)
+            element = self.elements[0]
             self.elements = self.elements[1:]
         else:
-            element = self.__getitem__(index)
+            try:
+                element = self.elements[index]
+            except IndexError:
+                raise IndexError("CustomList index out of range")
             self.elements = self.elements[:index] + self.elements[index + 1 :]
         return element
 
@@ -203,7 +167,7 @@ class CustomList:
 
         >>> new_cl = CustomList(1, 2, 3, maxlen=12)
         >>> str(new_cl)
-        "(1, 2, 3) | Max Length is 12"
+        "(1, 2, 3) with max length 12"
         """
         str_list = str(self.elements)
         if not self.maxlen:
@@ -275,11 +239,29 @@ class CustomList:
                 return self.elements[item]
             except IndexError:
                 raise IndexError("CustomList index out of range")
+        else:
+            try:
+                return CustomList(*self.elements[item], maxlen=self.maxlen)
             except TypeError:
                 raise TypeError(
                     "CustomList indices must be integers or slices, not {}".format(
                         type(item).__name__
                     )
                 )
-        else:
-            return CustomList(*self.elements[item], maxlen=self.maxlen)
+
+
+def custom_list(elements: Sequence[int], maxlen: int = 0, auto_maxlen: bool = False) -> CustomList:
+    """
+    Конструктор CustomList. Конвертує ітерабельний об'єкт в CustomList.
+
+    :param elements: об'єкт який потрібно конвертувати в CustomList.
+    :param maxlen: необов'язковий параметр.
+        Дозволяє встановити максимальну довжину списку.
+        Якщо дорівнює 0 то кількість елементів необмежена.
+    :param auto_maxlen: якщо дорівнює True то maxlen Customlist'а
+        буде дорівнювати довжині об'єкту, що конвертується.
+    :return: CustomList сформований з ітерабельного об'єкту.
+    """
+    if auto_maxlen:
+        maxlen = len(elements)
+    return CustomList(*elements, maxlen=maxlen)
