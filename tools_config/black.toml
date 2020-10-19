@@ -6,7 +6,6 @@ exclude = '''
 /(
     \.git
     \.idea
-    \tests
   | \.hg
   | \.mypy_cache
   | \.tox
