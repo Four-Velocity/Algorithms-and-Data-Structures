@@ -11,6 +11,8 @@ black = "==19.10b0"
 
 [packages]
 jupyter = "*"
+faker = "*"
+rich = "*"
 
 [requires]
 python_version = "3.8"
