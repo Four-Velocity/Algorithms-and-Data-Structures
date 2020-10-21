@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 from typing import Union, Sequence, Optional, Iterable
-from .utils import MaxLenMixin
-from .utils.list_exceptions import CustomListIsEmpty, CustomListIsFull
+from data_structures.utils import MaxLenMixin
+from data_structures.utils.list_exceptions import CustomListIsEmpty, CustomListIsFull
 
 __all__ = ["CustomList", "custom_list"]
 
@@ -160,14 +160,6 @@ class CustomList(MaxLenMixin):
         Магічний метод. Дозволяє конвертувати список до рядка.
 
         :return: список представлений як рядок.
-
-        >>> new_cl = CustomList(1, 2, 3)
-        >>> str(new_cl)
-        "(1, 2, 3)"
-
-        >>> new_cl = CustomList(1, 2, 3, maxlen=12)
-        >>> str(new_cl)
-        "(1, 2, 3) with max length 12"
         """
         str_list = str(self.elements)
         if not self.maxlen:
@@ -180,14 +172,6 @@ class CustomList(MaxLenMixin):
         Магічний метод. Дозволяє отримувати рядкове представлення списку.
 
         :return: рядкова репрезентація екземпляру.
-
-        >>> new_cl = CustomList(1, 2, 3)
-        >>> repr(new_cl)
-        "CustomList(1, 2, 3)"
-
-        >>> new_cl = CustomList(1, 2, 3, maxlen=12)
-        >>> repr(new_cl)
-        "CustomList(1, 2, 3, maxlen=12)"
         """
         repr_list = str(self.elements)
         if not self.maxlen:

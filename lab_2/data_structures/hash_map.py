@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 from typing import Tuple, List, Optional, Set, Callable, Iterator, Any
-from .utils.typing import IntOrFloat
+from lab_2.data_structures.utils.typing import IntOrFloat
 
 from .circle import Circle
 
 from math import isclose
 from copy import copy
+
+__all__ = ["CircleHashMap"]
 
 
 class CircleHashMap:
@@ -70,10 +72,9 @@ class CircleHashMap:
 
         :param func: функція за якою вирішується видаляти елемент чи ні.
         """
-        for key in self.keys():
-            value = self.__getitem__(key)
-            if func(value):
-                self.__delitem__(key)
+        delete_keys = [key for key in self.keys() if func(self[key])]
+        for key in delete_keys:
+            del self[key]
 
     def __len__(self) -> int:
         """
@@ -125,11 +126,15 @@ class CircleHashMap:
             if circle is not None:
                 h1 = self.__get_main_hash(circle.P)
                 h2 = self.__get_fallback_hash(circle.P)
-                for shift in range(self.__get_real_length()):
-                    if self.__table[h1] is None:
-                        self.__table[h1] = circle
-                        break
-                    h1 = h1 + shift * h2
+                try:
+                    for shift in range(self.__get_real_length()):
+                        if self.__table[h1] is None:
+                            self.__table[h1] = circle
+                            break
+                        h1 = h1 + shift * h2
+                except IndexError:
+                    self.__table = copy(_temporary_table)
+                    self.__resize()
 
     def __getitem__(self, key: IntOrFloat) -> Optional[Circle]:
         """
@@ -146,7 +151,10 @@ class CircleHashMap:
                 if isclose(self.__table[h1].P, key) and not self.__deleted[h1]:
                     return self.__table[h1]
             else:
-                raise KeyError(key)
+                if self.__deleted[h1]:
+                    pass
+                else:
+                    raise KeyError(key)
             h1 = h1 + shift * h2
         return None
 
@@ -199,7 +207,10 @@ class CircleHashMap:
                     self.__keys.remove(key)
                     break
             else:
-                break
+                if self.__deleted[h1]:
+                    pass
+                else:
+                    break
             h1 = h1 + shift * h2
 
     def __iter__(self) -> Iterator[IntOrFloat]:

@@ -4,7 +4,8 @@ from __future__ import annotations
 from typing import Optional, Callable, Tuple, Iterator, List
 from .student import Student
 from collections import deque
-from rich.console import Console
+
+__all__ = ["Node", "Tree"]
 
 
 class Node:
@@ -22,11 +23,20 @@ class Node:
         self.l = left  # noqa
         self.r = right  # noqa
 
-    def display_aux(self):
+    def display_tree(self):
+        lines, *_ = self._display_tree()
+        for line in lines:
+            print(line)
+
+    def return_tree(self):
+        lines, *_ = self._display_tree()
+        return '\n'.join(lines)
+
+    def _display_tree(self):
         """Returns list of strings, width, height, and horizontal coordinate of the root."""
         # No child.
         if self.r is None and self.l is None:
-            line = '%s' % self.v.ticket
+            line = "%s" % self.v.ticket
             width = len(line)
             height = 1
             middle = width // 2
@@ -34,37 +44,37 @@ class Node:
 
         # Only left child.
         if self.r is None:
-            lines, n, p, x = self.l.display_aux()
-            s = '%s' % self.v.ticket
+            lines, n, p, x = self.l._display_tree()
+            s = "%s" % self.v.ticket
             u = len(s)
-            first_line = (x + 1) * ' ' + (n - x - 1) * '_' + s
-            second_line = x * ' ' + '/' + (n - x - 1 + u) * ' '
-            shifted_lines = [line + u * ' ' for line in lines]
+            first_line = (x + 1) * " " + (n - x - 1) * "_" + s
+            second_line = x * " " + "/" + (n - x - 1 + u) * " "
+            shifted_lines = [line + u * " " for line in lines]
             return [first_line, second_line] + shifted_lines, n + u, p + 2, n + u // 2
 
         # Only right child.
         if self.l is None:
-            lines, n, p, x = self.r.display_aux()
-            s = '%s' % self.v.ticket
+            lines, n, p, x = self.r._display_tree()
+            s = "%s" % self.v.ticket
             u = len(s)
-            first_line = s + x * '_' + (n - x) * ' '
-            second_line = (u + x) * ' ' + '\\' + (n - x - 1) * ' '
-            shifted_lines = [u * ' ' + line for line in lines]
+            first_line = s + x * "_" + (n - x) * " "
+            second_line = (u + x) * " " + "\\" + (n - x - 1) * " "
+            shifted_lines = [u * " " + line for line in lines]
             return [first_line, second_line] + shifted_lines, n + u, p + 2, u // 2
 
         # Two children.
-        left, n, p, x = self.l.display_aux()
-        right, m, q, y = self.r.display_aux()
-        s = '%s' % self.v.ticket
+        left, n, p, x = self.l._display_tree()
+        right, m, q, y = self.r._display_tree()
+        s = "%s" % self.v.ticket
         u = len(s)
-        first_line = (x + 1) * ' ' + (n - x - 1) * '_' + s + y * '_' + (m - y) * ' '
-        second_line = x * ' ' + '/' + (n - x - 1 + u + y) * ' ' + '\\' + (m - y - 1) * ' '
+        first_line = (x + 1) * " " + (n - x - 1) * "_" + s + y * "_" + (m - y) * " "
+        second_line = x * " " + "/" + (n - x - 1 + u + y) * " " + "\\" + (m - y - 1) * " "
         if p < q:
-            left += [n * ' '] * (q - p)
+            left += [n * " "] * (q - p)
         elif q < p:
-            right += [m * ' '] * (p - q)
+            right += [m * " "] * (p - q)
         zipped_lines = zip(left, right)
-        lines = [first_line, second_line] + [a + u * ' ' + b for a, b in zipped_lines]
+        lines = [first_line, second_line] + [a + u * " " + b for a, b in zipped_lines]
         return lines, n + m + u, max(p, q) + 2, n + u // 2
 
 
@@ -145,7 +155,7 @@ class Tree:
         for node, _ in for_delete_list:
             self.delete_node(self.root, node.v)
 
-    def delete_node(self, root: Optional[Node], key: Student):
+    def delete_node(self, root: Optional[Node], key: Student) -> Node:
         """
         Рекурсивна функція. Видаляє вузол з дерева.
 
@@ -191,7 +201,7 @@ class Tree:
 
     def __next__(self):
         """
-        Магічнйи метод.
+        Магічний метод.
 
         Разом із __iter__ реалізують можливість ітеруватись по дереву у ширину.
         """
@@ -204,7 +214,6 @@ class Tree:
             return node, lvl
         raise StopIteration
 
-    def __str__(self):
-        lines, *_ = self.root.display_aux()
-        for line in lines:
-            print(line)
+    def __str__(self) -> str:
+        return self.root.return_tree()
+

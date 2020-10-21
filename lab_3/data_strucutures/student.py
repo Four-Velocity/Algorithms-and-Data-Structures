@@ -1,7 +1,6 @@
 """Містить реалізацію класу студента."""
 
 from __future__ import annotations
-from .utils.typing import IntOrFloat
 
 __all__ = ["Student"]
 
@@ -16,7 +15,7 @@ class Student:
         course: int,
         ticket: int,
         sex: str,
-        average_grade: IntOrFloat,
+        average_grade: str,
     ):
         """
         Ініціалізація класу. Встановлення атрибутів.
@@ -33,7 +32,7 @@ class Student:
         self.course: int = course
         self.ticket: int = ticket
         self.sex: str = sex
-        self.average_grade: IntOrFloat = average_grade
+        self.average_grade: str = average_grade
 
     def __lt__(self, other: object) -> bool:
         """Менше."""

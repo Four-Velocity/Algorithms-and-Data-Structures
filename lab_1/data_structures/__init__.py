@@ -1,4 +1,4 @@
 """Кастомні колекції."""
 
-from .list import CustomList
 from .queue import CustomQueue
+from .list import CustomList

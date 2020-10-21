@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 from typing import Any, Sequence, Iterable
-from .utils import MaxLenMixin
-from .utils.queue_exceptions import CustomQueueIsEmpty, CustomQueueIsFull
+from data_structures.utils import MaxLenMixin
+from data_structures.utils.queue_exceptions import CustomQueueIsEmpty, CustomQueueIsFull
 
 __all__ = ["CustomQueue"]
 
@@ -164,14 +164,6 @@ class CustomQueue(MaxLenMixin):
         Магічний метод. Дозволяє конвертувати список до рядка.
 
         :return: список представлений як рядок.
-
-        >>> new_cl = CustomQueue(1, 2, 3)
-        >>> str(new_cl)
-        "(1, 2, 3)"
-
-        >>> new_cl = CustomQueue(1, 2, 3, maxlen=12)
-        >>> str(new_cl)
-        "(1, 2, 3) | Max Length is 12"
         """
         if self.maxlen:
             maxlen_suffix = f" with max length {self.maxlen}"
@@ -190,17 +182,9 @@ class CustomQueue(MaxLenMixin):
 
     def __repr__(self):
         """
-        Магічний метод. Дозволяє отримувати рядкове прадставлення списку.
+        Магічний метод. Дозволяє отримувати рядкове представлення списку.
 
         :return: рядкова репрезентація екземпляру.
-
-        >>> new_cl = CustomQueue(1, 2, 3)
-        >>> repr(new_cl)
-        "CustomList(1, 2, 3)"
-
-        >>> new_cl = CustomQueue(1, 2, 3, maxlen=12)
-        >>> repr(new_cl)
-        "CustomList(1, 2, 3, maxlen=12)"
         """
         initial_queue = tuple(int(i, 16) for i in self.elements[::-1])
         repr_list = str(initial_queue)
