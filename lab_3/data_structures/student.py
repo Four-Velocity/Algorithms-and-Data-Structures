@@ -97,7 +97,7 @@ class Student:
             f"course={self.course},"
             f"ticket={self.ticket},"
             f"sex={self.sex},"
-            f"average_grade={self.average_grade}"
+            f"average_grade={self.average_grade})"
         )
 
     def __str__(self) -> str:

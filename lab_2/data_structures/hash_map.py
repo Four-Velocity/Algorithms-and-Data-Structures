@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from typing import Tuple, List, Optional, Set, Callable, Iterator, Any
-from lab_2.data_structures.utils.typing import IntOrFloat
+from .utils.typing import IntOrFloat
 
 from .circle import Circle
 

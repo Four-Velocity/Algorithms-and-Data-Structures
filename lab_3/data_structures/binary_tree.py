@@ -33,8 +33,8 @@ class Node:
         return '\n'.join(lines)
 
     def _display_tree(self):
-        """Returns list of strings, width, height, and horizontal coordinate of the root."""
-        # No child.
+        """Повертає список з рядками, шириною, висотою та горизонтальною координатою кореня."""
+        # Нема дитячих вузлів.
         if self.r is None and self.l is None:
             line = "%s" % self.v.ticket
             width = len(line)
@@ -42,7 +42,7 @@ class Node:
             middle = width // 2
             return [line], width, height, middle
 
-        # Only left child.
+        # Дитячий вузол лише ліворуч.
         if self.r is None:
             lines, n, p, x = self.l._display_tree()
             s = "%s" % self.v.ticket
@@ -52,7 +52,7 @@ class Node:
             shifted_lines = [line + u * " " for line in lines]
             return [first_line, second_line] + shifted_lines, n + u, p + 2, n + u // 2
 
-        # Only right child.
+        # Дитячий вузол лише праворуч.
         if self.l is None:
             lines, n, p, x = self.r._display_tree()
             s = "%s" % self.v.ticket
@@ -62,7 +62,7 @@ class Node:
             shifted_lines = [u * " " + line for line in lines]
             return [first_line, second_line] + shifted_lines, n + u, p + 2, u // 2
 
-        # Two children.
+        # Два дитячих вузла.
         left, n, p, x = self.l._display_tree()
         right, m, q, y = self.r._display_tree()
         s = "%s" % self.v.ticket

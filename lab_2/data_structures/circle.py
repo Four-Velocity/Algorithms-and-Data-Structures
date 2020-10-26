@@ -143,23 +143,3 @@ Circle:
             )
         else:
             return False
-
-    def __division_hash__(self, length: int) -> int:
-        """
-        Магічний метод. Отримує хеш кола методом ділення.
-
-        :param length: довжина хеш-таблиці.
-        :return: Хеш кола.
-        """
-        return int(self.P // length)
-
-    def __helped_hash__(self, length: int) -> int:
-        """
-        Магічний метод. Отримує допоміжний хеш методом ділення.
-
-        Використовується для запобігання колізій методом подвійного хешування.
-
-        :param length: довжина хеш-таблиці.
-        :return: Допоміжний хеш кола.
-        """
-        return int((self.P // (length - 1)) + 1)
