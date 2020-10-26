@@ -28,7 +28,6 @@ class CustomQueue(MaxLenMixin):
         Якщо дорівнює 0 то кількість елементів необмежена.
         """
         self.elements = tuple(hex(element) for element in elements[::-1])
-        print(self.elements)
         super(CustomQueue, self).__init__(*elements, maxlen=maxlen)
 
     def is_full(self) -> bool:
@@ -119,7 +118,7 @@ class CustomQueue(MaxLenMixin):
         for element in iterable:
             self.lpush_hex(element)
 
-    def clear(self, iterable):
+    def clear(self):
         """Очищує чергу."""
         self.elements = ()
 
@@ -231,7 +230,7 @@ class CustomQueue(MaxLenMixin):
         :param item: індекс.
         :raise TypeError: при спробі отримання елемента за індексом.
         """
-        raise TypeError("'CustomQueue object' object is not subscriptable")
+        raise TypeError("'CustomQueue' object is not subscriptable")
 
     def __iter__(self) -> CustomQueue:
         """

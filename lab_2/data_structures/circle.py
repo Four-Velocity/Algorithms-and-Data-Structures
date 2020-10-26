@@ -3,7 +3,7 @@
 from __future__ import annotations
 from math import pi, isclose
 from typing import Any
-from lab_2.data_structures.utils.typing import IntOrFloat
+from .utils.typing import IntOrFloat
 
 __all__ = ["Circle"]
 
